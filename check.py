@@ -15,6 +15,6 @@ with open('小韻表.csv') as f:
 with open('字頭表.csv') as f:
 	next(f) # skip header
 	for line in f:
-		音韻編碼, 字頭, 釋義 = line.rstrip('\n').split(',')
+		字頭, 音韻編碼, 釋義 = line.rstrip('\n').split(',')
 		母, 呼, 等, 重紐, 韻, 聲 = decode(音韻編碼)
 		assert (母, 呼, 等, 重紐, 韻, 聲) in seen
