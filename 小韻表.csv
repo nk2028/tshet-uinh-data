@@ -87,7 +87,7 @@ gDI,五江
 UDI,士江
 XEQ,章移
 lEQ,弋支
-kE0,薳支
+kEw,薳支
 dE0,居爲
 iE0,許爲
 hE0,於爲
@@ -170,7 +170,7 @@ DFU,武悲
 AFU,府眉
 XFw,職追
 ZFw,視隹
-kF0,洧悲
+kFw,洧悲
 CFU,符悲
 BFU,敷悲
 iFw,許維
@@ -418,7 +418,7 @@ CUQ,符真
 gUU,語巾
 dUU,居銀
 dU0,居筠
-kU0,爲贇
+kUw,爲贇
 eU0,去倫
 DUU,武巾
 CUU,符巾
@@ -622,7 +622,7 @@ ReQ,夕連
 Oew,此緣
 Xew,職緣
 Zew,市緣
-ke0,王權
+kew,王權
 Sew,莊緣
 Vew,山員
 Kew,丑緣
@@ -633,7 +633,7 @@ Lew,直攣
 Iew,呂員
 ee0,丘圓
 heU,於乾
-keU,有乾
+keQ,有乾
 he0,於權
 YeQ,尺延
 Jew,丁全
@@ -667,7 +667,7 @@ ChQ,符霄
 DhQ,彌遙
 DhU,武瀌
 hhQ,於霄
-khU,于嬌
+khQ,于嬌
 fhU,巨嬌
 OhQ,七遙
 hhU,於喬
@@ -1097,7 +1097,7 @@ a0Q,失廉
 Y0Q,處占
 c0Q,汝鹽
 M0Q,女廉
-k0U,于廉
+k0Q,于廉
 J0Q,張廉
 K0Q,丑廉
 h0U,央炎
@@ -1202,7 +1202,7 @@ hEV,於綺
 dEV,居綺
 eEV,墟彼
 gEV,魚倚
-kE1,韋委
+kEx,韋委
 NEx,即委
 cEx,如累
 OER,雌氏
@@ -1246,7 +1246,7 @@ dFV,居履
 NFR,將几
 AFR,卑履
 dF1,居洧
-kF1,榮美
+kFx,榮美
 aFR,式視
 LFR,直几
 QFR,息姊
@@ -1462,7 +1462,7 @@ fU1,渠殞
 lUR,余忍
 DUV,眉殞
 DUR,武盡
-kU1,于敏
+kUx,于敏
 XUx,之尹
 lUx,余準
 QUx,思尹
@@ -2125,7 +2125,7 @@ IES,力智
 ZES,是義
 NES,子智
 QES,斯義
-kE2,于僞
+kEy,于僞
 dE2,詭僞
 BEW,披義
 AEW,彼義
@@ -2166,7 +2166,7 @@ SES,爭義
 iEy,呼恚
 eEW,卿義
 XFS,脂利
-kF2,于愧
+kFy,于愧
 DFW,明祕
 RFy,徐醉
 NFy,將遂
@@ -2352,7 +2352,7 @@ HLa,奴計
 iLa,呼計
 NMS,子例
 QMy,相銳
-kM2,于歲
+kMy,于歲
 cMy,而銳
 XMy,之芮
 VMy,山芮
@@ -2680,7 +2680,7 @@ ZeS,時戰
 geW,魚變
 eeS,去戰
 dey,吉掾
-ke2,王眷
+key,王眷
 DeS,彌箭
 Yey,尺絹
 ley,以絹
@@ -3060,7 +3060,7 @@ gxW,宜禁
 JxS,知鴆
 IxS,良鴆
 ZxS,時鴆
-kxW,于禁
+kxS,于禁
 axS,式禁
 eyC,苦紺
 dyC,古暗
@@ -3264,7 +3264,7 @@ DUT,彌畢
 AUT,卑吉
 fUX,巨乙
 CUT,毗必
-kU3,于筆
+kUz,于筆
 VUz,所律
 YUT,昌栗
 UUT,仕叱
@@ -3716,7 +3716,7 @@ ixX,許及
 SxT,阻立
 hxX,於汲
 KxT,丑入
-kxX,爲立
+kxT,爲立
 lxT,羊入
 MxT,尼立
 UxT,仕戢
@@ -3770,7 +3770,7 @@ O0T,七接
 K0T,丑輒
 f0X,其輒
 J0T,陟葉
-k0X,筠輒
+k0T,筠輒
 e0T,去涉
 V0T,山輒
 d0X,居輒
