@@ -9,27 +9,25 @@ with open('廣韻(20170209).csv') as f, open('data.csv', 'w') as g:
 	# skip header
 	next(f)
 
-	print('最簡描述,反切,字頭,解釋', file=g)
+	print('資料名稱,小韻號,最簡描述,反切覈校前,反切,字頭覈校前,字頭,釋義,釋義補充,圖片id', file=g)
+
+	資料名稱 = '廣韻'
 
 	for line in f:
-		try:
-			parts = line.rstrip('\n').split(',')
-			反切, 字頭, 解釋, 補充, 母, 呼, 等, 韻, 聲 = parts[20], parts[24], parts[25], parts[26], parts[30], parts[31], parts[32], parts[33], parts[34]
-		except Exception:
-			print(line)
+		xs = line.rstrip('\n').split(',')
+		反切覈校前, 反切, 字頭覈校前, 字頭, 釋義, 釋義補充, 母, 呼, 等, 韻, 聲, 圖片id, 小韻號 = xs[19], xs[20], xs[23], xs[24], xs[25], xs[26], xs[30], xs[31], xs[32], xs[33], xs[34], xs[56], xs[58]
+
+		小韻號 = int(小韻號)
 
 		# 拆分重紐和韻
 		重紐 = 韻[1:]
 		韻 = 韻[:1]
 
 		# 異體字
-		if 母 == '群':
-			母 = '羣'
-		elif 母 == '娘':
-			母 = '孃'
+		if 母 == '群': 母 = '羣'
+		elif 母 == '娘': 母 = '孃'
 
-		if 韻 == '真':
-			韻 = '眞'
+		if 韻 == '真': 韻 = '眞'
 
 		# 刪除羨餘屬性
 		if not (母 in '幫滂並明見溪羣疑影曉' and 韻 in '支脂祭眞仙宵清侵鹽'):
@@ -37,14 +35,15 @@ with open('廣韻(20170209).csv') as f, open('data.csv', 'w') as g:
 		if 母 in '幫滂並明' or 韻 in '東冬鍾江虞模尤幽':
 			呼 = None
 
+		# 邊緣小韻的等根據韻確定
 		if 韻 in 純一等韻: 等 = '一'
 		elif 韻 in 純二等韻: 等 = '二'
 		elif 韻 in 純三等韻: 等 = '三'
 		elif 韻 in 純四等韻: 等 = '四'
 
 		# 無反切的小韻
-		if len(反切) != 2:
-			反切 = ''
+		if len(反切覈校前) != 2: 反切覈校前 = ''
+		if len(反切) != 2: 反切 = ''
 
 		# patch
 		if 反切 == '所庚': 等 = '三' # 據《切韻研究》改為三等。FIXME: 未來二、三等兼收，並加備註
@@ -56,4 +55,4 @@ with open('廣韻(20170209).csv') as f, open('data.csv', 'w') as g:
 
 		最簡描述 = Qieyun.音韻地位(母, 呼, 等, 重紐, 韻, 聲).最簡描述
 
-		print(最簡描述, 反切, 字頭, 解釋, sep=',', file=g)
+		print(資料名稱, 小韻號, 最簡描述, 反切覈校前, 反切, 字頭覈校前, 字頭, 釋義, 釋義補充, 圖片id, sep=',', file=g)
