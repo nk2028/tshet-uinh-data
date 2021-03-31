@@ -6,8 +6,7 @@ import Qieyun
 純四等韻 = '齊先蕭青添'
 
 with open('廣韻(20170209).csv') as f, open('data.csv', 'w') as g:
-	# skip header
-	next(f)
+	next(f) # skip header
 
 	print('資料名稱,小韻號,最簡描述,反切覈校前,反切,字頭覈校前,字頭,釋義,釋義補充,圖片id', file=g)
 

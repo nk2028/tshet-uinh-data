@@ -11,4 +11,5 @@ Build
 ```sh
 git checkout source -- '廣韻(20170209).csv'
 python build.py
+python check.py
 ```
