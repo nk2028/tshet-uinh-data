@@ -9,7 +9,7 @@ def contains_ascii(s: str):
 	'''
 	return bool(pattern.match(s))
 
-with open('data.csv') as f:
+with open('rhyme_book.csv') as f:
 	next(f) # skip header
 	for line in f:
 		資料名稱, 小韻號, 韻部原貌, 最簡描述, 反切覈校前, 反切, 字頭覈校前, 字頭, 釋義, 釋義補充, 圖片id = line.rstrip('\n').split(',')

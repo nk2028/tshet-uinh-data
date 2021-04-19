@@ -5,7 +5,7 @@ import Qieyun
 純三等韻 = '鍾支脂之微魚虞祭廢眞臻欣元文仙宵陽清蒸尤幽侵鹽嚴凡'
 純四等韻 = '齊先蕭青添'
 
-with open('廣韻(20170209).csv') as f, open('data.csv', 'w') as g:
+with open('廣韻(20170209).csv') as f, open('rhyme_book.csv', 'w') as g:
 	next(f) # skip header
 
 	print('資料名稱,小韻號,韻部原貌,最簡描述,反切覈校前,反切,字頭覈校前,字頭,釋義,釋義補充,圖片id', file=g)
