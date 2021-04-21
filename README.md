@@ -1,6 +1,6 @@
 # qieyun-data [![](https://github.com/nk2028/qieyun-data/workflows/Check/badge.svg)](https://github.com/nk2028/qieyun-data/actions?query=workflow%3ACheck)
 
-A database of the phonological position of the Qieyun phonological system of Chinese characters, based on Guangyun.
+A database of the Qieyun phonological system.
 
 ## Rhyme books
 
