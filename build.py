@@ -1,4 +1,4 @@
-import Qieyun
+import QieyunEncoder
 
 純一等韻 = '冬模泰咍灰痕魂寒豪唐登侯覃談'
 純二等韻 = '江佳皆夬刪山肴耕咸銜'
@@ -52,7 +52,7 @@ with open('廣韻(20170209).csv') as f, open('rhyme_book.csv', 'w') as g:
 		elif 反切 == '戶閒' and 字頭 == '閑': 字頭 = '閒'
 		elif 反切 == '古莧' and 字頭 == '閒': 字頭 = '間'
 
-		最簡描述 = Qieyun.音韻地位(母, 呼, 等, 重紐, 韻, 聲).最簡描述
+		最簡描述 = QieyunEncoder.音韻地位(母, 呼, 等, 重紐, 韻, 聲).最簡描述
 
 		if 反切覈校前 == 反切: 反切 = ''
 		if 字頭覈校前 == 字頭: 字頭 = ''
