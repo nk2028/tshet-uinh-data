@@ -7,6 +7,10 @@ with open('v2音韻地位.csv') as fin:
     for row in csv.reader(fin):
         v2_dict[int(row[0])] = row[1:]
 
+第一地位override = {
+    3708: set('癔'),
+}
+
 use第二地位 = set()
 with open('廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
     next(f)  # skip header
@@ -43,7 +47,9 @@ with open('廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
             最簡描述 = ''
         elif '/' in v2字頭:
             最簡描述 = 最簡描述.split('/')
-            if 小韻號 in use第二地位:
+            if 字頭 in 第一地位override.get(小韻號, set()):
+                最簡描述 = 最簡描述[0]
+            elif 小韻號 in use第二地位:
                 最簡描述 = 最簡描述[1]
             else:
                 v2字頭 = v2字頭.split('/')
