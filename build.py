@@ -15,7 +15,7 @@ use第二地位 = set()
 with open('廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
     next(f)  # skip header
 
-    print('小韻號,韻目原貌,最簡描述,反切覈校前,反切,字頭覈校前,字頭,釋義,釋義補充,圖片id', file=g)
+    print('小韻號,小韻內字序,韻目原貌,最簡描述,反切覈校前,反切,字頭覈校前,字頭,釋義,釋義補充,圖片id', file=g)
 
     for line in f:
         xs = line.rstrip('\n').split(',')
@@ -35,6 +35,7 @@ with open('廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
             反切 = ''
 
         最簡描述, v2字頭, v2反切, _ = v2_dict[小韻號]
+        # NOTE poem 表的小韻內字序可能有 .5，不全是整數
         if 小韻內字序.strip() == '1':
             assert 字頭 in v2字頭.split('/'), f'{字頭} not in {v2字頭}'
 
@@ -62,5 +63,5 @@ with open('廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
         if 字頭覈校前 == 字頭:
             字頭 = ''
 
-        print(小韻號, 韻目原貌, 最簡描述, 反切覈校前, 反切, 字頭覈校前,
+        print(小韻號, 小韻內字序, 韻目原貌, 最簡描述, 反切覈校前, 反切, 字頭覈校前,
               字頭, 釋義, 釋義補充, 圖片id, sep=',', file=g)
