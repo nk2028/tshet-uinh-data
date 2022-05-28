@@ -7,9 +7,23 @@ with open('v2音韻地位.csv') as fin:
     for row in csv.reader(fin):
         v2_dict[int(row[0])] = row[1:]
 
-第一地位override = {
-    3708: set('癔'),
+小韻細分override = {
+    3521: ['', '訐'],
+    3708: ['癔', ''],
 }
+for v in 小韻細分override.values():
+    v[0] = set(v[0])
+    v[1] = set(v[1])
+
+
+def get小韻細分override(小韻號: int, 字頭: str) -> int | None:
+    if 小韻號 not in 小韻細分override:
+        return None
+    for i, chs in enumerate(小韻細分override[小韻號]):
+        if 字頭 in chs:
+            return i
+    return None
+
 
 use第二地位 = set()
 with open('廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
@@ -43,8 +57,8 @@ with open('廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
             最簡描述 = ''
         elif '/' in v2字頭:
             最簡描述 = 最簡描述.split('/')
-            if 字頭 in 第一地位override.get(小韻號, set()):
-                最簡描述 = 最簡描述[0]
+            if (細分 := get小韻細分override(小韻號, 字頭)) is not None:
+                最簡描述 = 最簡描述[細分]
             elif 小韻號 in use第二地位:
                 最簡描述 = 最簡描述[1]
             else:
