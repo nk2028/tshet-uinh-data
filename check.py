@@ -18,15 +18,20 @@ def contains_ascii(s: str):
 
 
 for filename in glob('韻書/*.csv'):
+    is廣韻 = filename == '韻書/廣韻.csv'
     with open(filename) as f:
         next(f)  # skip header
         for line in f:
-            小韻號, 小韻內字序, 韻部原貌, 最簡描述, 反切覈校前, 反切, 字頭覈校前, 字頭, 釋義, 釋義補充, 圖片id = line.rstrip(
-                '\n').split(',')
+            if is廣韻:
+                小韻號, 小韻內字序, 韻部原貌, 最簡描述, 反切覈校前, 反切, 字頭覈校前, 字頭, 釋義, 釋義補充, 圖片id = line.rstrip(
+                    '\n').split(',')
+            else:
+                小韻號, 韻部原貌, 最簡描述, 反切覈校前, 反切, 字頭覈校前, 字頭, 釋義, 釋義補充, 圖片id = line.rstrip(
+                    '\n').split(',')
             if 最簡描述 != '':
                 assert PATTERN_描述.fullmatch(最簡描述) is not None
-            assert len(反切覈校前) in (
+            assert len(反切) in (
                 2, 0), 'The length of 反切 should be 2, otherwise it should be an empty string'
-            assert len(字頭覈校前) == 1, 'The length of 字頭 should be 1'
+            assert len(字頭) == 1, 'The length of 字頭 should be 1'
             assert not contains_ascii(
                 釋義), '釋義 should not contain any ASCII characters'
