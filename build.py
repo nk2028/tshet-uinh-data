@@ -31,7 +31,8 @@ def get小韻細分(小韻號: int, 字頭: str) -> int | None:
     return None
 
 
-分開合韻 = set('支脂微齊祭泰佳皆夬廢眞元寒刪山仙先歌麻陽唐庚耕清青蒸登')
+分開合韻 = set('支脂微齊祭泰佳皆夬廢真元寒刪山仙先歌麻陽唐庚耕清青蒸登')
+鈍音分重紐韻 = set('支脂祭真仙宵庚清侵鹽')
 
 
 def to最簡描述(母: str, 呼: str | None, 等: str, 重紐: str | None, 韻: str, 聲: str) -> str:
@@ -39,7 +40,11 @@ def to最簡描述(母: str, 呼: str | None, 等: str, 重紐: str | None, 韻:
         呼 = ''
     if 等 is None or 韻 not in ('東', '歌', '麻', '庚'):
         等 = ''
-    return 母 + 呼 + 等 + (重紐 or '') + 韻 + 聲
+    if (重紐 is None or
+            (重紐 == 'A' and 韻 == '清') or
+            (重紐 == 'B' and (韻 == '庚' or (母 == '云' and 韻 in 鈍音分重紐韻)))):
+        重紐 = ''
+    return 母 + 呼 + 等 + 重紐 + 韻 + 聲
 
 
 with open('src/廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
@@ -63,7 +68,7 @@ with open('src/廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
         小韻細分 = get小韻細分(小韻號, 字頭)
         key = (小韻號, str(小韻細分) if 小韻細分 is not None else '')
 
-        nk2028代表字, nk2028反切, nk2028韻目原貌, 母, _, 聲, 等, 呼, 重紐, 韻 = nk2028_dict[key][:10]
+        nk2028代表字, nk2028反切, nk2028韻目原貌, 母, 呼, 等, 重紐, 韻, 聲 = nk2028_dict[key][:9]
 
         # 適應 Qieyun.js 音韻地位
         # 小韻表.csv 體系較 Qieyun.js 更為超前一些，故需適配一下
@@ -79,23 +84,11 @@ with open('src/廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
             elif 韻 in ('脂', '麻'):
                 等 = '三'
 
-        # 異體調整（韻）
-        # TODO Qieyun.js 0.14 時移除該調整，仍用「真」
-        # - 資料之字頭、反切、釋義均用「真」，惟音韻地位例外
-        # - 「真」亦為 OpenCC 之「正字」
-        if 韻 == '真':
-            韻 = '眞'
-
         # 驗證兩表一致性
         # NOTE poem 表的小韻內字序可能有 .5，不全是整數
         if 小韻內字序.strip() == '1':
             assert 字頭 == nk2028代表字, f'代表字 mismatch for 小韻 #{小韻號}: {字頭} != {nk2028代表字}'
             assert 韻目原貌 == nk2028韻目原貌, f'韻目原貌 mismatch for 小韻 #{小韻號}: {韻目原貌} != {nk2028韻目原貌}'
-
-        # 異體調整（韻目原貌）
-        # TODO Qieyun.js 0.14 時移除該調整，仍用「真」（原因同上）
-        if 韻目原貌 == '真':
-            韻目原貌 = '眞'
 
         最簡描述 = ''
         if 母:
