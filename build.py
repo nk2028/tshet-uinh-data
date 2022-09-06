@@ -8,6 +8,7 @@ with open('v2音韻地位.csv') as fin:
         v2_dict[int(row[0])] = row[1:]
 
 小韻細分override = {
+    409: ['㘋', ''],
     3521: ['', '訐'],
     3708: ['癔', ''],
 }
@@ -53,9 +54,7 @@ with open('廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
         if 小韻內字序.strip() == '1':
             assert 字頭 in v2字頭.split('/'), f'{字頭} not in {v2字頭}'
 
-        if 最簡描述 == '(deleted)':
-            最簡描述 = ''
-        elif '/' in v2字頭:
+        if '/' in v2字頭:
             最簡描述 = 最簡描述.split('/')
             if (細分 := get小韻細分override(小韻號, 字頭)) is not None:
                 最簡描述 = 最簡描述[細分]
@@ -68,6 +67,8 @@ with open('廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
                     最簡描述 = 最簡描述[1]
                 else:
                     最簡描述 = 最簡描述[0]
+        if 最簡描述 == '(deleted)':
+            最簡描述 = ''
 
         if v2反切 != 反切:
             assert 反切 == 反切覈校前
