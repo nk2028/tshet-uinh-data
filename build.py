@@ -32,26 +32,14 @@ def get小韻細分(小韻號: int, 字頭: str) -> int | None:
     return None
 
 
-分開合韻 = set('支脂微齊祭泰佳皆夬廢真元寒刪山仙先歌麻陽唐庚耕清青蒸登')
-鈍音分重紐韻 = set('支脂祭真仙宵庚清侵鹽')
-
-
-def to最簡描述(母: str, 呼: str | None, 等: str, 重紐: str | None, 韻: str, 聲: str) -> str:
-    if 呼 is None or 韻 not in 分開合韻:
-        呼 = ''
-    if 等 is None or 韻 not in ('東', '歌', '麻', '庚'):
-        等 = ''
-    if (重紐 is None or
-            (重紐 == 'A' and 韻 == '清') or
-            (重紐 == 'B' and (韻 == '庚' or (母 == '云' and 韻 in 鈍音分重紐韻)))):
-        重紐 = ''
-    return 母 + 呼 + 等 + 重紐 + 韻 + 聲
+def to描述(母: str, 呼: str | None, 等: str, 重紐: str | None, 韻: str, 聲: str) -> str:
+    return 母 + (呼 or '') + 等 + (重紐 or '') + 韻 + 聲
 
 
 with open('src/廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
     next(f)  # skip header
 
-    print('小韻號,小韻內字序,韻目原貌,最簡描述,反切覈校前,反切,字頭覈校前,字頭,釋義,釋義補充,圖片id', file=g)
+    print('小韻號,小韻內字序,韻目原貌,描述,反切覈校前,反切,字頭覈校前,字頭,釋義,釋義補充,圖片id', file=g)
 
     for line in f:
         xs = line.rstrip('\n').split(',')
@@ -91,9 +79,9 @@ with open('src/廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
             assert 字頭 == nk2028代表字, f'代表字 mismatch for 小韻 #{小韻號}: {字頭} != {nk2028代表字}'
             assert 韻目原貌 == nk2028韻目原貌, f'韻目原貌 mismatch for 小韻 #{小韻號}: {韻目原貌} != {nk2028韻目原貌}'
 
-        最簡描述 = ''
+        描述 = ''
         if 母:
-            最簡描述 = to最簡描述(母, 呼 or None, 等, 重紐 or None, 韻, 聲)
+            描述 = to描述(母, 呼 or None, 等, 重紐 or None, 韻, 聲)
 
         if nk2028反切 != 反切:
             assert 反切 == 反切覈校前
@@ -103,5 +91,5 @@ with open('src/廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
         if 字頭覈校前 == 字頭:
             字頭覈校前 = ''
 
-        print(小韻號, 小韻內字序, 韻目原貌, 最簡描述, 反切覈校前, 反切, 字頭覈校前,
+        print(小韻號, 小韻內字序, 韻目原貌, 描述, 反切覈校前, 反切, 字頭覈校前,
               字頭, 釋義, 釋義補充, 圖片id, sep=',', file=g)
