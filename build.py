@@ -36,11 +36,9 @@ def to描述(母: str, 呼: str | None, 等: str, 重紐: str | None, 韻: str, 
     return 母 + (呼 or '') + 等 + (重紐 or '') + 韻 + 聲
 
 
-with open('src/廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
+rows = []
+with open('src/廣韻(20170209).csv') as f:
     next(f)  # skip header
-
-    print('小韻號,小韻內字序,韻目原貌,描述,反切覈校前,反切,字頭覈校前,字頭,釋義,釋義補充,圖片id', file=g)
-
     for line in f:
         xs = line.rstrip('\n').split(',')
         反切覈校前, 反切, 字頭覈校前, 字頭, 釋義, 釋義補充, 韻目原貌, 圖片id, 小韻號, 小韻內字序 = xs[19], xs[
@@ -91,5 +89,12 @@ with open('src/廣韻(20170209).csv') as f, open('韻書/廣韻.csv', 'w') as g:
         if 字頭覈校前 == 字頭:
             字頭覈校前 = ''
 
-        print(小韻號, 小韻內字序, 韻目原貌, 描述, 反切覈校前, 反切, 字頭覈校前,
-              字頭, 釋義, 釋義補充, 圖片id, sep=',', file=g)
+        rows.append((小韻號, 小韻內字序, 韻目原貌, 描述, 反切覈校前,
+                     反切, 字頭覈校前, 字頭, 釋義, 釋義補充, 圖片id))
+
+rows.sort(key=lambda row: (row[0], float(row[1])))
+
+with open('韻書/廣韻.csv', 'w') as fout:
+    print('小韻號,小韻內字序,韻目原貌,描述,反切覈校前,反切,字頭覈校前,字頭,釋義,釋義補充,圖片id', file=fout)
+    for row in rows:
+        print(*row, sep=',', file=fout)
