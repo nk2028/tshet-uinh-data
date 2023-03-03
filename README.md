@@ -4,6 +4,7 @@ A database of the Qieyun phonological system.
 
 - 韻書
     - 王一：`王一.csv` (not completed)
+    - 王三：`王三.csv` (小韻內部待校)
     - 廣韻（澤存堂本）：`廣韻.csv`
 - 韻圖
     - 韻鏡（嘉吉本）：`韻鏡（嘉吉本）.csv` (not completed)

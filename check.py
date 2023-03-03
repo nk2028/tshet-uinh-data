@@ -18,6 +18,8 @@ def contains_ascii(s: str):
 
 
 for filename in glob('韻書/*.csv'):
+    if '王三' in filename:
+        continue
     with open(filename) as f:
         next(f)  # skip header
         for line in f:
