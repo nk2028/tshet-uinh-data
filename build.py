@@ -55,34 +55,12 @@ def main():
     小韻細分_coverage: dict[str, set[str]] = {}
     廣韻_data: list[tuple[tuple[int, float], list[str]]] = []
     with open('src/廣韻(20170209).csv') as fin:
-        rows = csv.reader(fin)
-
-        header = next(rows)
-        success = True
-        for [idx, field] in (
-            (18, '字頭-補'),
-            (19, '廣韻反切原貌(覈校前)'),
-            (20, '廣韻反切(覈校後)'),
-            (23, '廣韻字頭原貌(覈校前)'),
-            (24, '廣韻字頭(覈校後)'),
-            (25, '廣韻釋義'),
-            (26, '釋義補充'),
-            (39, '廣韻韻部原貌(調整前)'),
-            (56, '廣韻頁序'),
-            (58, '小韻序'),
-            (59, '小韻內字序'),
-        ):
-            if header[idx] != field:
-                success = False
-                print(
-                    f'[Error] header mismatch: expected {repr(field)}, got header[{idx}] = {repr(header[idx])}'
-                )
-        if not success:
-            print()
-            print(list(enumerate(header)))
-            exit(2)
-
-        for row in rows:
+        for row in csv.DictReader(fin):
+            # Formerly used fields:
+            # - 廣韻反切原貌(覈校前)
+            # - 廣韻反切(覈校後)
+            # - 廣韻字頭原貌(覈校前)
+            # - 廣韻頁序
             (
                 增刪說明,
                 字頭,
@@ -92,13 +70,16 @@ def main():
                 小韻號原貌,
                 小韻內字序,
             ) = (
-                row[18],
-                row[24],
-                row[25],
-                row[26],
-                row[39],
-                row[58],
-                row[59],
+                row[key]
+                for key in (
+                    '字頭-補',
+                    '廣韻字頭(覈校後)',
+                    '廣韻釋義',
+                    '釋義補充',
+                    '廣韻韻部原貌(調整前)',
+                    '小韻序',
+                    '小韻內字序',
+                )
             )
 
             if 增刪說明 == '應刪':
