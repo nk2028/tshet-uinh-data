@@ -25,6 +25,15 @@ def process_音韻地位(row: list[str]) -> str:
     return 母 + 呼 + 等類 + 韻 + 聲
 
 
+def fix_pua(s: str) -> str:
+    fixed = s.replace('\uee42', '𧞬').replace('\uece0', '勳')
+    for ch in fixed:
+        assert not (
+            0xE000 <= ord(ch) <= 0xF8FF
+        ), f'PUA character U+{ord(ch):04x} in {repr(s)}'
+    return fixed
+
+
 def main():
     小韻_data: dict[str, list[str]] = {}
     with open('src/rime-table-bfa9b50.tsv') as fin:
@@ -147,8 +156,8 @@ def main():
                 last_原小韻號 = 原小韻號
                 小韻內字序 = 0
             小韻內字序 += 1
-            row[1] = 小韻內字序
-            print(*row, sep=',', file=fout)
+            row[1] = str(小韻內字序)
+            print(fix_pua(','.join(row)), file=fout)
 
 
 if __name__ == '__main__':
