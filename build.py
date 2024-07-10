@@ -146,7 +146,7 @@ def main():
 
     last_原小韻號 = 0
     小韻內字序 = 0
-    with open('韻書/廣韻.csv', 'w') as fout:
+    with open('韻書/廣韻.csv', 'w', newline='') as fout:
         print(
             '小韻號,小韻內字序,韻目原貌,音韻地位,反切,字頭,字頭又作,釋義,釋義補充',
             file=fout,
