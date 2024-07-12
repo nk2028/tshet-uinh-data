@@ -22,6 +22,9 @@ def process_音韻地位(row: list[str]) -> str:
             等類 += 'B'
         else:
             等類 += 'C'
+    # NOTE 原資料莊組真殷韻依原貌。由於資料中已列「韻目原貌」，故地位不需再分
+    if 韻 in ('真', '殷') and 母 in tuple('莊初崇生俟'):
+        韻 = '臻'
     return 母 + 呼 + 等類 + 韻 + 聲
 
 
