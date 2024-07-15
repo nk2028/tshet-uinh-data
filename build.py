@@ -12,7 +12,7 @@ def process_音韻地位(row: list[str]) -> str:
     if (pos := 韻.find('→')) != -1:
         韻 = 韻[pos + 1 :]
     if 等類 == '四(?)':
-        等類 = '三' if 韻 in ('脂', '麻') else '二'
+        等類 = '四' if 韻 in ('脂', '麻') else '二'
     等類 = 等類.replace('(', '')
     等類 = 等類.replace(')', '')
     if 母 in 幫見影組 and 等類 == '三':
