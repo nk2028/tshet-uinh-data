@@ -11,17 +11,6 @@ def process_音韻地位(row: list[str]) -> str:
         return ''
     if (pos := 韻.find('→')) != -1:
         韻 = 韻[pos + 1 :]
-    if 等類 == '四(?)':
-        等類 = '四' if 韻 in ('脂', '麻') else '二'
-    等類 = 等類.replace('(', '')
-    等類 = 等類.replace(')', '')
-    if 母 in 幫見影組 and 等類 == '三':
-        if 韻 == '麻' or (韻 == '幽' and 母 not in 幫組):
-            等類 += 'A'
-        elif 韻 == '幽' or (韻 == '蒸' and (呼 == '合' or 母 in 幫組)):
-            等類 += 'B'
-        else:
-            等類 += 'C'
     # NOTE 原資料莊組真殷韻依原貌。由於資料中已列「韻目原貌」，故地位不需再分
     if 韻 in ('真', '殷') and 呼 == '開' and 母 in tuple('莊初崇生俟'):
         韻 = '臻'
@@ -39,7 +28,7 @@ def fix_pua(s: str) -> str:
 
 def main():
     小韻_data: dict[str, list[str]] = {}
-    with open('src/rime-table-bfa9b50.tsv') as fin:
+    with open('src/rime-table-0b69606.tsv') as fin:
         next(fin)
         for line in fin:
             row = line.rstrip('\n').split('\t')
