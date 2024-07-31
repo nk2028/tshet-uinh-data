@@ -1,8 +1,11 @@
 import csv
 
 
-幫組 = tuple('幫滂並明')
-幫見影組 = tuple('幫滂並明見溪羣疑影曉匣云')
+音韻地位_patches = {
+    '892': ('幫二庚平', '幫二耕平'),
+    '1016': ('明一侯平', '明三C尤平'),
+    '3059': ('明一侯去', '明三C尤去'),
+}
 
 
 def process_音韻地位(row: list[str]) -> str:
@@ -103,6 +106,12 @@ def main():
                 小韻號 = 小韻號原貌
 
             音韻地位 = 音韻地位_data[小韻號]
+            patch = 音韻地位_patches.get(小韻號)
+            if patch is not None:
+                assert (
+                    音韻地位 == patch[0]
+                ), f'invalid patch: expect {patch[0]} -> {patch[1]}, got {音韻地位}'
+                音韻地位 = patch[1]
             反切 = 小韻_data[小韻號][2]
             if 反切 == '無':
                 反切 = ''
