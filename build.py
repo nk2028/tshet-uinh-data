@@ -125,11 +125,6 @@ def main():
             if 反切 == '無':
                 反切 = ''
 
-            字頭又作 = {
-                '𩏑': '韓',
-                '𧖴': '脈',
-            }.get(字頭, '')
-
             釋義_key = (小韻號, 字頭)
             if 釋義_key in 釋義補充_patch_from:
                 assert (
@@ -147,7 +142,6 @@ def main():
                         音韻地位,
                         反切,
                         字頭,
-                        字頭又作,
                         釋義,
                         釋義補充,
                     ],
@@ -162,8 +156,8 @@ def main():
     for 條目 in 廣韻_data:
         key = 條目[1][0], 條目[1][5]
         if (patch := 釋義補充_patch_to.get(key)) is not None:
-            assert not 條目[1][8], f'條目 already containing 釋義補充: {條目[1]}'
-            條目[1][8] = 釋義補充_patch_from[(patch[0], patch[1])][patch[2]]
+            assert not 條目[1][7], f'條目 already containing 釋義補充: {條目[1]}'
+            條目[1][7] = 釋義補充_patch_from[(patch[0], patch[1])][patch[2]]
 
     廣韻_data.sort(key=lambda x: x[0])
 
@@ -171,7 +165,7 @@ def main():
     小韻內字序 = 0
     with open('韻書/廣韻.csv', 'w', newline='') as fout:
         print(
-            '小韻號,小韻內字序,韻目原貌,音韻地位,反切,字頭,字頭又作,釋義,釋義補充',
+            '小韻號,小韻內字序,韻目原貌,音韻地位,反切,字頭,釋義,釋義補充',
             file=fout,
         )
         for (原小韻號, _), row in 廣韻_data:
