@@ -1,10 +1,19 @@
 import csv
 
 
+# 「通俗地位」
 音韻地位_patches = {
     '892': ('幫二庚平', '幫二耕平'),
     '1016': ('明一侯平', '明三C尤平'),
     '3059': ('明一侯去', '明三C尤去'),
+}
+# 補全缺失釋義補充
+釋義補充_patch_from = {
+    ('949', '蔆'): None,
+}
+釋義補充_patch_to = {
+    ('949', '菱'): ('949', '蔆', 0),
+    ('949', '䔖'): ('949', '蔆', 0),
 }
 
 
@@ -121,6 +130,13 @@ def main():
                 '𧖴': '脈',
             }.get(字頭, '')
 
+            釋義_key = (小韻號, 字頭)
+            if 釋義_key in 釋義補充_patch_from:
+                assert (
+                    釋義補充_patch_from[釋義_key] is None
+                ), f'duplicate (小韻號, 字頭): {釋義_key}'
+                釋義補充_patch_from[釋義_key] = (釋義, 釋義補充)
+
             廣韻_data.append(
                 (
                     order_key,
@@ -142,6 +158,12 @@ def main():
         specified = set(小韻細分_data[小韻號][2])
         diff = specified - cov
         assert not diff, f'字頭 listed in 小韻細分_data but not seen: {"".join(sorted(diff))} (小韻 #{小韻號})'
+
+    for 條目 in 廣韻_data:
+        key = 條目[1][0], 條目[1][5]
+        if (patch := 釋義補充_patch_to.get(key)) is not None:
+            assert not 條目[1][8], f'條目 already containing 釋義補充: {條目[1]}'
+            條目[1][8] = 釋義補充_patch_from[(patch[0], patch[1])][patch[2]]
 
     廣韻_data.sort(key=lambda x: x[0])
 
