@@ -160,10 +160,10 @@ def main():
         assert not diff, f'字頭 listed in 小韻細分_data but not seen: {"".join(sorted(diff))} (小韻 #{小韻號})'
 
     for 條目 in 廣韻_data:
-        key = 條目[1][0], 條目[1][5]
+        key = 條目[1][0], 條目[1][6]
         if (patch := 釋義補充_patch_to.get(key)) is not None:
-            assert not 條目[1][7], f'條目 already containing 釋義補充: {條目[1]}'
-            條目[1][7] = 釋義補充_patch_from[(patch[0], patch[1])][patch[2]]
+            assert not 條目[1][8], f'條目 already containing 釋義補充: {條目[1]}'
+            條目[1][8] = 釋義補充_patch_from[(patch[0], patch[1])][patch[2]]
 
     廣韻_data.sort(key=lambda x: x[0])
 
