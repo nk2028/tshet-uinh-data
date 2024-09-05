@@ -22,7 +22,7 @@ if __name__ == '__main__':
     with open('韻書/廣韻.csv') as f:
         assert (
             next(f).rstrip('\n')
-            == '小韻號,小韻內字序,韻目原貌,音韻地位,反切,字頭,釋義,釋義補充'
+            == '小韻號,小韻內字序,韻目原貌,音韻地位,反切,反切原貌,字頭,釋義,釋義補充'
         )
         for line in f:
             (
@@ -31,6 +31,7 @@ if __name__ == '__main__':
                 韻目原貌,
                 音韻地位描述,
                 反切,
+                反切原貌,
                 字頭,
                 釋義,
                 釋義補充,
@@ -43,6 +44,9 @@ if __name__ == '__main__':
                 2,
                 0,
             ), 'The length of 反切 should be 2, otherwise it should be an empty string'
+            assert 反切原貌 == '' or len(反切原貌) == len(
+                反切
+            ), '反切原貌 should either be empty or have the same length with 反切'
             assert len(字頭) == 1, 'The length of 字頭 should be 1'
             assert not contains_ascii(
                 釋義
