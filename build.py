@@ -69,13 +69,13 @@ def main():
     廣韻_data: list[tuple[tuple[int, float], list[str]]] = []
     with open('src/廣韻(20170209).csv') as fin:
         for row in csv.DictReader(fin):
-            # Formerly used fields:
-            # - 廣韻反切原貌(覈校前)
-            # - 廣韻反切(覈校後)
-            # - 廣韻字頭原貌(覈校前)
-            # - 廣韻頁序
+            # Formerly used fields (field number is 1-based, same as awk & MS Excel):
+            # '廣韻反切(覈校後)',  # 21
+            # '廣韻字頭原貌(覈校前)',  # 24
+            # '廣韻頁序',  # 57
             (
                 增刪說明,
+                反切原貌,
                 字頭,
                 釋義,
                 釋義補充,
@@ -85,13 +85,14 @@ def main():
             ) = (
                 row[key]
                 for key in (
-                    '字頭-補',
-                    '廣韻字頭(覈校後)',
-                    '廣韻釋義',
-                    '釋義補充',
-                    '廣韻韻部原貌(調整前)',
-                    '小韻序',
-                    '小韻內字序',
+                    '字頭-補',  # 19
+                    '廣韻反切原貌(覈校前)',  # 20
+                    '廣韻字頭(覈校後)',  # 25
+                    '廣韻釋義',  # 26
+                    '釋義補充',  # 27
+                    '廣韻韻部原貌(調整前)',  # 40
+                    '小韻序',  # 59
+                    '小韻內字序',  # 60
                 )
             )
 
@@ -121,9 +122,13 @@ def main():
                     音韻地位 == patch[0]
                 ), f'invalid patch: expect {patch[0]} -> {patch[1]}, got {音韻地位}'
                 音韻地位 = patch[1]
+
             反切 = 小韻_data[小韻號][2]
             if 反切 == '無':
                 反切 = ''
+
+            if len(反切原貌) != 2 or 反切原貌 == 反切:
+                反切原貌 = ''
 
             釋義_key = (小韻號, 字頭)
             if 釋義_key in 釋義補充_patch_from:
@@ -141,6 +146,7 @@ def main():
                         韻目原貌,
                         音韻地位,
                         反切,
+                        反切原貌,
                         字頭,
                         釋義,
                         釋義補充,
@@ -154,10 +160,10 @@ def main():
         assert not diff, f'字頭 listed in 小韻細分_data but not seen: {"".join(sorted(diff))} (小韻 #{小韻號})'
 
     for 條目 in 廣韻_data:
-        key = 條目[1][0], 條目[1][5]
+        key = 條目[1][0], 條目[1][6]
         if (patch := 釋義補充_patch_to.get(key)) is not None:
-            assert not 條目[1][7], f'條目 already containing 釋義補充: {條目[1]}'
-            條目[1][7] = 釋義補充_patch_from[(patch[0], patch[1])][patch[2]]
+            assert not 條目[1][8], f'條目 already containing 釋義補充: {條目[1]}'
+            條目[1][8] = 釋義補充_patch_from[(patch[0], patch[1])][patch[2]]
 
     廣韻_data.sort(key=lambda x: x[0])
 
@@ -165,7 +171,7 @@ def main():
     小韻內字序 = 0
     with open('韻書/廣韻.csv', 'w', newline='') as fout:
         print(
-            '小韻號,小韻內字序,韻目原貌,音韻地位,反切,字頭,釋義,釋義補充',
+            '小韻號,小韻內字序,韻目原貌,音韻地位,反切,反切原貌,字頭,釋義,釋義補充',
             file=fout,
         )
         for (原小韻號, _), row in 廣韻_data:
