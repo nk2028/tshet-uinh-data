@@ -1,5 +1,6 @@
 import csv
 from dataclasses import dataclass
+import re
 
 
 # 補全缺失釋義補充
@@ -57,17 +58,18 @@ def main():
             has_細分.setdefault(小韻號[:-1], []).append(小韻號[-1])
             小韻細分_data[小韻號] = row
 
+    釋義反切_patch: tuple[str, str] | None = None
     小韻細分_coverage: dict[str, set[str]] = {}
     廣韻_data: list[tuple[tuple[int, float], list[str]]] = []
     with open('src/廣韻(20170209).csv') as fin:
         for row in csv.DictReader(fin):
             # Formerly used fields (field number is 1-based, same as awk & MS Excel):
             # '廣韻反切原貌(覈校前)',  # 20
-            # '廣韻反切(覈校後)',  # 21
             # '廣韻字頭原貌(覈校前)',  # 24
             # '廣韻頁序',  # 57
             (
                 增刪說明,
+                poem_反切,
                 字頭,
                 釋義,
                 釋義補充,
@@ -78,6 +80,7 @@ def main():
                 row[key]
                 for key in (
                     '字頭-補',  # 19
+                    '廣韻反切(覈校後)',  # 21
                     '廣韻字頭(覈校後)',  # 25
                     '廣韻釋義',  # 26
                     '釋義補充',  # 27
@@ -112,7 +115,27 @@ def main():
             if 反切 == '-':
                 反切 = ''
 
-            # TODO patch 反切 in 釋義 (and in 釋義補充)
+            if 小韻內字序 == '1':
+                if 反切:
+                    反切原貌 = re.sub(r'\[.\]|<.>|⦉.⦊|\(.\)|⦅.⦆', '', 反切)
+                    if 反切原貌 == poem_反切:
+                        釋義反切_patch = None
+                    else:
+                        assert (
+                            釋義.count(poem_反切 + '切') == 1
+                        ), f'釋義 not containing {反切}切 exactly once: {釋義}'
+                        釋義反切_patch = (
+                            釋義,
+                            釋義.replace(poem_反切 + '切', 反切原貌 + '切'),
+                        )
+                        釋義 = 釋義反切_patch[1]
+                else:
+                    釋義反切_patch = None
+            elif 釋義反切_patch is not None:
+                if 釋義補充 == 釋義反切_patch[0]:
+                    釋義補充 = 釋義反切_patch[1]
+                else:
+                    釋義反切_patch = None
 
             釋義_key = (小韻號, 字頭)
             if 釋義_key in 釋義補充_patch_from:
