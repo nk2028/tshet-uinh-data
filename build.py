@@ -172,7 +172,10 @@ def main():
                 f'patching 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but the actual 字 is "{字頭}"'
             )
             patch_coverage.add(字序_key)
-            if patch.校正字頭 and patch.校正字頭 != '～':
+            assert patch.校正字頭, (
+                f'patching 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but 校正字頭 is not given'
+            )
+            if patch.校正字頭 != '～':
                 corrected = patch.校正字頭
                 if corrected.startswith('['):
                     if corrected[-2] == '-':
@@ -181,7 +184,14 @@ def main():
                     else:
                         assert not patch.當刪說明
                         corrected = corrected[-2]
+                    if corrected == '～':
+                        assert 字頭
+                        corrected = 字頭
                 字頭 = corrected
+            if patch.當刪說明:
+                assert patch.校正字頭.endswith('/-]'), (
+                    f'patching 當刪說明 on 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but 校正字頭 is not marked for removal'
+                )
 
             if patch.校正釋義 or patch.原釋義:
                 assert patch.原釋義 == 釋義, (
