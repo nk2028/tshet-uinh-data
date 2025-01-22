@@ -177,7 +177,7 @@ def main():
     小韻內字序 = 0
     with open('韻書/廣韻.csv', 'w', newline='') as fout:
         print(
-            '小韻號,小韻內字序,韻目原貌,音韻地位,反切,字頭,釋義,釋義補充',
+            '小韻號,小韻內字序,韻目原貌,音韻地位,反切,字頭,釋義,釋義參照',
             file=fout,
         )
         for (原小韻號, _), row in 廣韻_data:
@@ -186,6 +186,11 @@ def main():
                 小韻內字序 = 0
             小韻內字序 += 1
             row[1] = str(小韻內字序)
+            # TODO 臨時調整
+            if not row[6]:
+                row[7] = '下'
+            elif row[7]:
+                row[7] = '上'
             print(fix_pua(','.join(row)), file=fout)
 
 
