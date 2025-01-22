@@ -104,7 +104,7 @@ class 廣韻Row:
     音韻地位: str
     反切: str
     字頭: str
-    # 字頭當刪: str  # TODO
+    字頭當刪: str
     釋義: str
     釋義參照: str
 
@@ -166,6 +166,7 @@ def main():
                 釋義參照 = ''
 
         # 修正
+        字頭當刪 = ''
         if (patch := patches.get(字序_key)) is not None:
             assert patch.原字頭 == 字頭, (
                 f'patching 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but the actual 字 is "{字頭}"'
@@ -174,8 +175,12 @@ def main():
             if patch.校正字頭 and patch.校正字頭 != '～':
                 corrected = patch.校正字頭
                 if corrected.startswith('['):
-                    # TODO 暫忽略當刪字
-                    corrected = corrected[-2] if corrected[-2] != '-' else corrected[1]
+                    if corrected[-2] == '-':
+                        字頭當刪 = patch.當刪說明 or '當刪'
+                        corrected = corrected[1]
+                    else:
+                        assert not patch.當刪說明
+                        corrected = corrected[-2]
                 字頭 = corrected
 
             if patch.校正釋義 or patch.原釋義:
@@ -189,7 +194,15 @@ def main():
                     f'patching 釋義參照 on 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but the actual 釋義參照 is "{釋義參照}"'
                 )
                 釋義參照 = patch.校正釋義參照
-        # TODO 當刪字
+        elif 字序_data[字序_key].sbgy_字.endswith('/-]'):
+            字頭當刪 = '當刪'
+
+        字_check = 字序_data[字序_key].字
+        if 字_check.startswith('['):
+            字_check = 字_check[-2] if 字_check[-2] != '-' else 字_check[1]
+        assert 字頭 == 字_check, (
+            f'字頭 mismatch between 字序表 and patched data: "{字_check}" != "{字頭}"'
+        )
 
         # 小韻號
         if 原書小韻號 in has_細分:
@@ -223,7 +236,7 @@ def main():
             釋義 = 釋義.replace(poem_反切 + '切', 反切原貌 + '切')
 
         廣韻_data[字序_key] = 廣韻Row(
-            小韻號, 小韻字號, 韻目原貌, 音韻地位, 反切, 字頭, 釋義, 釋義參照
+            小韻號, 小韻字號, 韻目原貌, 音韻地位, 反切, 字頭, 字頭當刪, 釋義, 釋義參照
         )
 
     for 小韻號, cov in 小韻細分_coverage.items():

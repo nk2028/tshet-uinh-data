@@ -28,29 +28,39 @@ if __name__ == '__main__':
     with open('韻書/廣韻.csv') as f:
         assert (
             next(f).rstrip('\n')
-            == '小韻號,小韻內字序,韻目原貌,音韻地位,反切,字頭,釋義,釋義補充'
+            == '小韻號,小韻字號,韻目原貌,音韻地位,反切,字頭,字頭當刪,釋義,釋義參照'
         )
         for line in f:
             (
                 小韻號,
-                小韻內字序,
+                小韻字號,
                 韻目原貌,
                 音韻地位描述,
                 反切,
                 字頭,
+                字頭當刪,
                 釋義,
-                釋義補充,
+                釋義參照,
             ) = line.rstrip('\n').split(',')
 
-            assert (
-                PATTERN_描述.fullmatch(音韻地位描述) is not None
-            ), f'invalid 音韻地位: {音韻地位描述}'
+            assert re.fullmatch(r'\d+[abc]?', 小韻號), f'invalid 小韻號: {小韻號}'
+            assert re.fullmatch(r'\d+(a\d+)?', 小韻字號), (
+                f'invalid 小韻字號: {小韻字號}'
+            )
+            assert len(韻目原貌) == 1, f'invalid 韻目原𩩕: {韻目原貌}'
+            assert len(字頭) == 1 or re.match(r'[\u2ff0-\u2fff\u303e\u31ef]', 字頭), (
+                f'invalid 字頭: {字頭}'
+            )
+
+            assert PATTERN_描述.fullmatch(音韻地位描述) is not None, (
+                f'invalid 音韻地位: {音韻地位描述}'
+            )
 
             if 反切:
                 assert PATTERN_反切.fullmatch(反切) is not None, f'invalid 反切: {反切}'
-            assert len(字頭) == 1, 'The length of 字頭 should be 1'
 
-            assert 釋義 + 釋義補充, '釋義 and 釋義補充 should not be both empty'
-            assert not contains_ascii(
-                釋義
-            ), '釋義 should not contain any ASCII characters'
+            assert 釋義 + 釋義參照, '釋義 and 釋義參照 should not be both empty'
+            assert not contains_ascii(釋義), (
+                '釋義 should not contain any ASCII characters'
+            )
+            assert 釋義參照 in ('', '上', '下'), '釋義參照 should be "上" or "下"'
