@@ -4,15 +4,6 @@ from dataclasses import dataclass
 import re
 
 
-def fix_pua(s: str) -> str:
-    fixed = s.replace('\uee42', '𧞬').replace('\uece0', '勳')
-    for ch in fixed:
-        assert not (0xE000 <= ord(ch) <= 0xF8FF), (
-            f'PUA character U+{ord(ch):04x} in {repr(s)}'
-        )
-    return fixed
-
-
 @dataclass
 class 小韻Row:
     小韻號: str
@@ -113,6 +104,7 @@ class 廣韻Row:
     音韻地位: str
     反切: str
     字頭: str
+    # 字頭當刪: str  # TODO
     釋義: str
     釋義參照: str
 
@@ -137,32 +129,67 @@ def main():
         原書小韻號, 小韻字號 = 字序_key
         poem_小韻內字序 = 字序_data[字序_key].poem_小韻內字序
         if not poem_小韻內字序:
-            continue  # TODO 補字
-        poem_row = poem_data[(原書小韻號, poem_小韻內字序)]
-
-        # Formerly used fields (field number is 1-based, same as awk & MS Excel):
-        # '字頭-補',  # 19
-        # '廣韻反切原貌(覈校前)',  # 20
-        # '廣韻字頭原貌(覈校前)',  # 24
-        # '廣韻頁序',  # 57
-        # '小韻序',  # 59
-        # '小韻內字序',  # 60
-        (
-            poem_反切,
-            字頭,
-            釋義,
-            釋義補充,
-            韻目原貌,
-        ) = (
-            poem_row[key]
-            for key in (
-                '廣韻反切(覈校後)',  # 21
-                '廣韻字頭(覈校後)',  # 25
-                '廣韻釋義',  # 26
-                '釋義補充',  # 27
-                '廣韻韻部原貌(調整前)',  # 40
+            poem_反切 = poem_data[(原書小韻號, '1')]['廣韻反切(覈校後)']
+            字頭 = ''
+            釋義 = ''
+            釋義參照 = ''
+        else:
+            poem_row = poem_data[(原書小韻號, poem_小韻內字序)]
+            # Formerly used fields (field number is 1-based, same as awk & MS Excel):
+            # '字頭-補',  # 19
+            # '廣韻反切原貌(覈校前)',  # 20
+            # '廣韻字頭原貌(覈校前)',  # 24
+            # '廣韻頁序',  # 57
+            # '小韻序',  # 59
+            # '小韻內字序',  # 60
+            (
+                poem_反切,
+                字頭,
+                釋義,
+                釋義補充,
+                韻目原貌,
+            ) = (
+                poem_row[key]
+                for key in (
+                    '廣韻反切(覈校後)',  # 21
+                    '廣韻字頭(覈校後)',  # 25
+                    '廣韻釋義',  # 26
+                    '釋義補充',  # 27
+                    '廣韻韻部原貌(調整前)',  # 40
+                )
             )
-        )
+            if not 釋義:
+                釋義參照 = '下'
+            elif 釋義補充:
+                釋義參照 = '上'
+            else:
+                釋義參照 = ''
+
+        # 修正
+        if (patch := patches.get(字序_key)) is not None:
+            assert patch.原字頭 == 字頭, (
+                f'patching 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but the actual 字 is "{字頭}"'
+            )
+            patch_coverage.add(字序_key)
+            if patch.校正字頭 and patch.校正字頭 != '～':
+                corrected = patch.校正字頭
+                if corrected.startswith('['):
+                    # TODO 暫忽略當刪字
+                    corrected = corrected[-2] if corrected[-2] != '-' else corrected[1]
+                字頭 = corrected
+
+            if patch.校正釋義 or patch.原釋義:
+                assert patch.原釋義 == 釋義, (
+                    f'patching 釋義 on 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but the actual 釋義 is "{釋義}"'
+                )
+                corrected = re.sub(r'\[.+?/(?:-|(.+?))\]|[{}]', r'\1', patch.校正釋義)
+                釋義 = corrected
+            if patch.校正釋義參照 or patch.原釋義參照:
+                assert patch.原釋義參照 == 釋義參照, (
+                    f'patching 釋義參照 on 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but the actual 釋義參照 is "{釋義參照}"'
+                )
+                釋義參照 = patch.校正釋義參照
+        # TODO 當刪字
 
         # 小韻號
         if 原書小韻號 in has_細分:
@@ -195,14 +222,6 @@ def main():
                 )
             釋義 = 釋義.replace(poem_反切 + '切', 反切原貌 + '切')
 
-        # 釋義參照
-        if not 釋義:
-            釋義參照 = '下'
-        elif 釋義補充:
-            釋義參照 = '上'
-        else:
-            釋義參照 = ''
-
         廣韻_data[字序_key] = 廣韻Row(
             小韻號, 小韻字號, 韻目原貌, 音韻地位, 反切, 字頭, 釋義, 釋義參照
         )
@@ -213,16 +232,18 @@ def main():
         assert not diff, (
             f'字頭 listed in 小韻細分_data but not seen: {"".join(sorted(diff))} (小韻 #{小韻號})'
         )
+    assert patch_coverage == set(patches), (
+        f'invalid patches: {", ".join(f"#{原書小韻號}/{小韻字號}" for 原書小韻號, 小韻字號 in set(patches) - patch_coverage)}'
+    )
+
     with open('韻書/廣韻.csv', 'w', newline='') as fout:
         print(
             ','.join(x.name for x in dataclasses.fields(廣韻Row)),
             file=fout,
         )
         for 字序_key, row in 廣韻_data.items():
-            if row is None:
-                print(f'Missing: {字序_data[字序_key]}')
-                continue  # TODO 暫忽略
-            print(fix_pua(','.join(dataclasses.astuple(row))), file=fout)
+            assert row is not None, f'Missing: {字序_data[字序_key]}'
+            print(','.join(dataclasses.astuple(row)), file=fout)
 
 
 if __name__ == '__main__':

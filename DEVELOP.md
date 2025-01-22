@@ -2,9 +2,18 @@
 
 ## Sources
 
-- 廣韻(20170209).csv: From [廣韻字音表](https://zhuanlan.zhihu.com/p/20430939), created by poem.
-- rime-table-0b69606.tsv: From [切韻新韻圖](https://phesoca.com/rime-table/) by unt, built from git commit `0b69606`.
-- split.csv: Maintained here, ultimately also from 切韻新韻圖.
+_poem_'s 廣韻 data:
+
+- 廣韻(20170209).csv: From [廣韻字音表](https://zhuanlan.zhihu.com/p/20430939), created by _poem_
+
+Maintained by NK2028:
+
+- 小韻表.csv: 音韻地位 and 反切
+- split.csv: Details of 小韻s with multiple 音韻地位s
+- 字序表: Correct order of 廣韻's entries
+  - `poem_*` fields refer to _poem_'s 廣韻字音表
+  - `sbgy_*` fields refer to [宋本廣韻データ](https://kanji-database.sourceforge.net/dict/sbgy/index.html)
+- patches.csv: Corrections to _poem_'s data
 
 ## Build
 
