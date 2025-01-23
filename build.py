@@ -56,6 +56,9 @@ class 字序Row:
     poem_字: str
     sbgy_id: str
     sbgy_字: str
+    ytenx_小韻內字序: str
+    ytenx_流水序: str
+    ytenx_字: str
 
 
 def load_字序表() -> dict[tuple[str, str], 字序Row]:
