@@ -180,7 +180,14 @@ def main():
             assert patch.校正字頭, (
                 f'patching 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but 校正字頭 is missing'
             )
-            # TODO verify `patch.校正字頭`
+            if patch.校正字頭.startswith('['):
+                assert re.fullmatch(r'\[.+/.+\]', patch.校正字頭), (
+                    f'invalid 校正字頭: "{patch.校正字頭}"'
+                )
+            if '～' in patch.校正字頭:
+                assert not 字頭.startswith('['), (
+                    f'cannot use "～" in 校正字頭 when 字頭 contains correction: "{字頭}"'
+                )
             字頭 = patch.校正字頭.replace('～', 字頭)
             if 字頭.endswith('/-]'):
                 字頭當刪 = patch.當刪說明 or '當刪'
