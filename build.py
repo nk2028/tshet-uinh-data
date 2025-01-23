@@ -138,12 +138,13 @@ def main():
             # Formerly used fields (field number is 1-based, same as awk & MS Excel):
             # '字頭-補',  # 19
             # '廣韻反切原貌(覈校前)',  # 20
-            # '廣韻字頭原貌(覈校前)',  # 24
             # '廣韻頁序',  # 57
             # '小韻序',  # 59
             # '小韻內字序',  # 60
             (
+                字頭覈校說明,
                 poem_反切,
+                字頭原貌,
                 字頭,
                 釋義,
                 釋義補充,
@@ -151,13 +152,17 @@ def main():
             ) = (
                 poem_row[key]
                 for key in (
+                    '字頭-覈校說明',  # 18
                     '廣韻反切(覈校後)',  # 21
+                    '廣韻字頭原貌(覈校前)',  # 24
                     '廣韻字頭(覈校後)',  # 25
                     '廣韻釋義',  # 26
                     '釋義補充',  # 27
                     '廣韻韻部原貌(調整前)',  # 40
                 )
             )
+            if 字頭覈校說明 == '校':
+                字頭 = f'[{字頭原貌}/{字頭}]'
             if not 釋義:
                 釋義參照 = '下'
             elif 釋義補充:
@@ -173,26 +178,16 @@ def main():
             )
             patch_coverage.add(字序_key)
             assert patch.校正字頭, (
-                f'patching 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but 校正字頭 is not given'
+                f'patching 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but 校正字頭 is missing'
             )
-            if patch.校正字頭 != '～':
-                corrected = patch.校正字頭
-                if corrected.startswith('['):
-                    if corrected[-2] == '-':
-                        字頭當刪 = patch.當刪說明 or '當刪'
-                        corrected = corrected[1]
-                    else:
-                        assert not patch.當刪說明
-                        corrected = corrected[-2]
-                    if corrected == '～':
-                        assert 字頭
-                        corrected = 字頭
-                字頭 = corrected
-            if patch.當刪說明:
-                assert patch.校正字頭.endswith('/-]'), (
+            # TODO verify `patch.校正字頭`
+            字頭 = patch.校正字頭.replace('～', 字頭)
+            if 字頭.endswith('/-]'):
+                字頭當刪 = patch.當刪說明 or '當刪'
+            else:
+                assert not patch.當刪說明, (
                     f'patching 當刪說明 on 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but 校正字頭 is not marked for removal'
                 )
-
             if patch.校正釋義 or patch.原釋義:
                 assert patch.原釋義 == 釋義, (
                     f'patching 釋義 on 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but the actual 釋義 is "{釋義}"'
@@ -205,14 +200,17 @@ def main():
                 )
                 釋義參照 = patch.校正釋義參照
         elif 字序_data[字序_key].sbgy_字.endswith('/-]'):
+            assert not 字頭.startswith('[')
+            字頭 = f'[{字頭}/-]'
             字頭當刪 = '當刪'
 
         字_check = 字序_data[字序_key].字
-        if 字_check.startswith('['):
-            字_check = 字_check[-2] if 字_check[-2] != '-' else 字_check[1]
         assert 字頭 == 字_check, (
-            f'字頭 mismatch between 字序表 and patched data: "{字_check}" != "{字頭}"'
+            f'字頭 mismatch between 字序表 and patched data: "{字_check}" != "{字頭}" (小韻 {原書小韻號}/{小韻字號})'
         )
+        if 字頭.startswith('['):
+            校前, 校後 = 字頭[1:-1].split('/')
+            字頭 = 校後 if 校後 != '-' else 校前
 
         # 小韻號
         if 原書小韻號 in has_細分:
