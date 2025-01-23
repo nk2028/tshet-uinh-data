@@ -13,6 +13,7 @@ Maintained by NK2028:
 - 字序表: Correct order of 廣韻's entries
   - `poem_*` fields refer to _poem_'s 廣韻字音表
   - `sbgy_*` fields refer to [宋本廣韻データ](https://kanji-database.sourceforge.net/dict/sbgy/index.html)
+  - `ytenx_*` fields refer to [韻典網](https://ytenx.org/)
 - patches.csv: Corrections to _poem_'s data
 
 ## Build
