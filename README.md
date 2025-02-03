@@ -26,7 +26,10 @@ A database of the Qieyun phonological system.
   - 替換成等價字，反切結果不變: `甫⦅府⦆妄` (小韻 #2918 放)
   - 替換成同音字，反切結果不變: `呼東⦅紅⦆` (小韻 #32 烘)
   - 複合使用: `以沼⦅小⦆<水>` (小韻 #1692a 鷕)
-- 字頭當刪: if nonempty, indicates this entry in 澤存堂本 is errorneous and should be removed according to 廣韻校本
+- 字頭原貌 & 字頭: The character for the entry
+  - A non-empty 字頭原貌 indicates a correction of the character
+  - Additionally, an empty 字頭 indicates this entry in 澤存堂本 is errorneous and should be removed
+- 字頭說明: contains notes about some of the corrections or removals
 - 釋義參照: 
   - `上` if 釋義 refers to the entry above ("同上", "俗", "古文" etc.)
   - `下` if it shares 釋義 with the entry below ("並上同", "並古文" etc.)
