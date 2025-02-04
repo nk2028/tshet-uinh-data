@@ -9,6 +9,12 @@ PATTERN_ASCII = re.compile(r'[\x00-\x7F]')
 PATTERN_描述 = re.compile(
     f'([{所有母}])([開合])?([{所有等}])([ABC])?([{所有韻}])([{所有聲}])'
 )
+PATTERN_反切 = re.compile(
+    r"""(?x)(
+        \[.\] |  # 脫字
+        . ( <.> | ⦉.⦊ | \(.\) | ⦅.⦆ )*  # 原貌及校正
+    ){2}"""
+)
 
 
 def contains_ascii(s: str):
@@ -35,15 +41,16 @@ if __name__ == '__main__':
                 釋義,
                 釋義補充,
             ) = line.rstrip('\n').split(',')
-            if 音韻地位描述 != '':
-                assert (
-                    PATTERN_描述.fullmatch(音韻地位描述) is not None
-                ), f'invalid 音韻地位: {音韻地位描述}'
-            assert len(反切) in (
-                2,
-                0,
-            ), 'The length of 反切 should be 2, otherwise it should be an empty string'
+
+            assert (
+                PATTERN_描述.fullmatch(音韻地位描述) is not None
+            ), f'invalid 音韻地位: {音韻地位描述}'
+
+            if 反切:
+                assert PATTERN_反切.fullmatch(反切) is not None, f'invalid 反切: {反切}'
             assert len(字頭) == 1, 'The length of 字頭 should be 1'
+
+            assert 釋義 + 釋義補充, '釋義 and 釋義補充 should not be both empty'
             assert not contains_ascii(
                 釋義
             ), '釋義 should not contain any ASCII characters'

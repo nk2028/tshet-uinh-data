@@ -1,12 +1,8 @@
 import csv
+from dataclasses import dataclass
+import re
 
 
-# 「通俗地位」
-音韻地位_patches = {
-    '892': ('幫二庚平', '幫二耕平'),
-    '1016': ('明一侯平', '明三C尤平'),
-    '3059': ('明一侯去', '明三C尤去'),
-}
 # 補全缺失釋義補充
 釋義補充_patch_from = {
     ('949', '蔆'): None,
@@ -15,18 +11,6 @@ import csv
     ('949', '菱'): ('949', '蔆', 0),
     ('949', '䔖'): ('949', '蔆', 0),
 }
-
-
-def process_音韻地位(row: list[str]) -> str:
-    母, 呼, 等類, 韻, 聲 = row[10:15]
-    if not 母:
-        return ''
-    if (pos := 韻.find('→')) != -1:
-        韻 = 韻[pos + 1 :]
-    # NOTE 原資料莊組真殷韻依原貌。由於資料中已列「韻目原貌」，故地位不需再分
-    if 韻 in ('真', '殷') and 呼 == '開' and 母 in tuple('莊初崇生俟'):
-        韻 = '臻'
-    return 母 + 呼 + 等類 + 韻 + 聲
 
 
 def fix_pua(s: str) -> str:
@@ -38,18 +22,27 @@ def fix_pua(s: str) -> str:
     return fixed
 
 
+@dataclass
+class 小韻Row:
+    小韻號: str
+    首字: str
+    反切: str
+    音韻地位: str
+
+
 def main():
-    小韻_data: dict[str, list[str]] = {}
-    with open('src/rime-table-0b69606.tsv') as fin:
-        next(fin)
+    小韻_data: dict[str, 小韻Row] = {}
+    with open('src/小韻表.tsv') as fin:
+        header = next(fin)
+        assert header.rstrip('\n').split('\t') == [
+            '小韻號',
+            '首字',
+            '反切',
+            '音韻地位',
+        ], repr(header)
         for line in fin:
             row = line.rstrip('\n').split('\t')
-            小韻號 = row[0]
-            小韻_data[小韻號] = row
-
-    音韻地位_data: dict[str, str] = {
-        key: process_音韻地位(row) for key, row in 小韻_data.items()
-    }
+            小韻_data[row[0]] = 小韻Row(*row)
 
     has_細分: dict[str, list[str]] = {}
     小韻細分_data: dict[str, list[str]] = {}
@@ -60,70 +53,89 @@ def main():
             assert 小韻號[-1].isalpha()
             反切 = row[1]
             assert (
-                小韻_data[小韻號][2] == 反切
+                小韻_data[小韻號].反切 == 反切
             ), f'反切 mismatch in 小韻 #{小韻號}, 小韻_data: {小韻_data[小韻號][2]}, 小韻細分_data: {反切}'
             has_細分.setdefault(小韻號[:-1], []).append(小韻號[-1])
             小韻細分_data[小韻號] = row
 
+    釋義反切_patch: tuple[str, str] | None = None
     小韻細分_coverage: dict[str, set[str]] = {}
     廣韻_data: list[tuple[tuple[int, float], list[str]]] = []
     with open('src/廣韻(20170209).csv') as fin:
         for row in csv.DictReader(fin):
-            # Formerly used fields:
-            # - 廣韻反切原貌(覈校前)
-            # - 廣韻反切(覈校後)
-            # - 廣韻字頭原貌(覈校前)
-            # - 廣韻頁序
+            # Formerly used fields (field number is 1-based, same as awk & MS Excel):
+            # '廣韻反切原貌(覈校前)',  # 20
+            # '廣韻字頭原貌(覈校前)',  # 24
+            # '廣韻頁序',  # 57
             (
                 增刪說明,
+                poem_反切,
                 字頭,
                 釋義,
                 釋義補充,
                 韻目原貌,
-                小韻號原貌,
+                原書小韻號,
                 小韻內字序,
             ) = (
                 row[key]
                 for key in (
-                    '字頭-補',
-                    '廣韻字頭(覈校後)',
-                    '廣韻釋義',
-                    '釋義補充',
-                    '廣韻韻部原貌(調整前)',
-                    '小韻序',
-                    '小韻內字序',
+                    '字頭-補',  # 19
+                    '廣韻反切(覈校後)',  # 21
+                    '廣韻字頭(覈校後)',  # 25
+                    '廣韻釋義',  # 26
+                    '釋義補充',  # 27
+                    '廣韻韻部原貌(調整前)',  # 40
+                    '小韻序',  # 59
+                    '小韻內字序',  # 60
                 )
             )
 
             if 增刪說明 == '應刪':
                 continue
 
-            order_key = (int(小韻號原貌), float(小韻內字序))
+            order_key = (int(原書小韻號), float(小韻內字序))
 
             # 小韻號
-            if 小韻號原貌 in has_細分:
-                for 細分 in has_細分[小韻號原貌]:
-                    小韻號 = 小韻號原貌 + 細分
+            if 原書小韻號 in has_細分:
+                for 細分 in has_細分[原書小韻號]:
+                    小韻號 = 原書小韻號 + 細分
                     if 字頭 in 小韻細分_data[小韻號][2]:
                         小韻細分_coverage.setdefault(小韻號, set()).add(字頭)
                         break
                 else:
                     raise ValueError(
-                        f'cannot determine 小韻細分 for {字頭} (小韻 #{小韻號原貌})'
+                        f'cannot determine 小韻細分 for {字頭} (小韻 #{原書小韻號})'
                     )
             else:
-                小韻號 = 小韻號原貌
+                小韻號 = 原書小韻號
 
-            音韻地位 = 音韻地位_data[小韻號]
-            patch = 音韻地位_patches.get(小韻號)
-            if patch is not None:
-                assert (
-                    音韻地位 == patch[0]
-                ), f'invalid patch: expect {patch[0]} -> {patch[1]}, got {音韻地位}'
-                音韻地位 = patch[1]
-            反切 = 小韻_data[小韻號][2]
-            if 反切 == '無':
+            音韻地位 = 小韻_data[小韻號].音韻地位
+
+            反切 = 小韻_data[小韻號].反切
+            if 反切 == '-':
                 反切 = ''
+
+            if 小韻內字序 == '1':
+                if 反切:
+                    反切原貌 = re.sub(r'\[.\]|<.>|⦉.⦊|\(.\)|⦅.⦆', '', 反切)
+                    if 反切原貌 == poem_反切:
+                        釋義反切_patch = None
+                    else:
+                        assert (
+                            釋義.count(poem_反切 + '切') == 1
+                        ), f'釋義 not containing {反切}切 exactly once: {釋義}'
+                        釋義反切_patch = (
+                            釋義,
+                            釋義.replace(poem_反切 + '切', 反切原貌 + '切'),
+                        )
+                        釋義 = 釋義反切_patch[1]
+                else:
+                    釋義反切_patch = None
+            elif 釋義反切_patch is not None:
+                if 釋義補充 == 釋義反切_patch[0]:
+                    釋義補充 = 釋義反切_patch[1]
+                else:
+                    釋義反切_patch = None
 
             釋義_key = (小韻號, 字頭)
             if 釋義_key in 釋義補充_patch_from:
