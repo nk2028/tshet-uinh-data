@@ -15,8 +15,8 @@ A database of the Qieyun phonological system.
 
 ## About fields in 韻書/廣韻.csv
 
-- 小韻號: May contain -a/-b/-c if a 小韻 has multiple 音韻地位s
-- 小韻字號: May contain -a1, -a2 etc for entries not present in 澤存堂本 but added back according to 廣韻校本
+- 小韻號: May contain suffix `a`/`b`/`c` if a 小韻 has multiple 音韻地位s
+- 小韻字號: May contain suffix `a1`, `a2` etc for entries not present in 澤存堂本 but added back according to other versions of 廣韻 (chiefly according to 廣韻校本)
 - 反切: May contain annotations:
   - 脫字: `[徒]候` (小韻 #3067 豆)
   - 訛字: `士<七>演` (小韻 #1625 淺)
@@ -28,7 +28,7 @@ A database of the Qieyun phonological system.
   - 複合使用: `以沼⦅小⦆<水>` (小韻 #1692a 鷕)
 - 字頭原貌 & 字頭: The character for the entry
   - A non-empty 字頭原貌 indicates a correction of the character
-  - Additionally, an empty 字頭 indicates this entry in 澤存堂本 is errorneous and should be removed
+  - Additionally, an empty 字頭 indicates this entry in 澤存堂本 is erroneous and should be removed
 - 字頭說明: contains notes about some of the corrections or removals
 - 釋義參照: 
   - `上` if 釋義 refers to the entry above ("同上", "俗", "古文" etc.)
