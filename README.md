@@ -18,18 +18,22 @@ A database of the Qieyun phonological system.
 - 小韻號: May contain suffix `a`/`b`/`c` if a 小韻 has multiple 音韻地位s
 - 小韻字號: May contain suffix `a1`, `a2` etc for entries not present in 澤存堂本 but added back according to other versions of 廣韻 (chiefly according to 廣韻校本)
 - 反切: May contain annotations:
-  - 脫字: `[徒]候` (小韻 #3067 豆)
-  - 訛字: `士<七>演` (小韻 #1625 淺)
-  - 改用其他來源的音韻地位: `姊宜⦉規⦊` (小韻 #133 厜)
-  - 替換成近似等價字，反切結果改變: `符咸(䒦)` (小韻 #1155 凡)
-  - 替換成音近字，反切結果改變: `式之(脂)` (小韻 #157 尸)
-  - 替換成等價字，反切結果不變: `甫⦅府⦆妄` (小韻 #2918 放)
-  - 替換成同音字，反切結果不變: `呼東⦅紅⦆` (小韻 #32 烘)
-  - 複合使用: `以沼⦅小⦆<水>` (小韻 #1692a 鷕)
+  - 脫字：［徒］候【小韻 #3067 豆】
+  - 訛字：士〈七〉演【小韻 #1625 淺】
+  - 改用其他來源的音韻地位（雙六角括號）: 姊宜〘規〙【小韻 #133 厜】
+  - 替換成近似等價字，反切結果改變: 符咸（䒦）【小韻 #1155 凡】
+  - 替換成音近字，反切結果改變: 式之（脂）【小韻 #157 尸】
+  - 替換成同音字，反切結果不變: 甫｟府｠妄【小韻 #2918 放】
+  - 替換成等價字，反切結果不變: 呼東｟紅｠【小韻 #32 烘】
+  - 複合使用: 以沼｟小｠〈水〉【小韻 #1692a 鷕】
+- 字頭: May contain annotations:
+  - 應補字：［嬹］【小韻 #961】
+  - 應刪字：｛𪈥｝【小韻 #318】
+  - 校訛字：汦〈泜〉【小韻 #144】
 - 字頭原貌 & 字頭: The character for the entry
   - A non-empty 字頭原貌 indicates a correction of the character
   - Additionally, an empty 字頭 indicates this entry in 澤存堂本 is erroneous and should be removed
 - 字頭說明: contains notes about some of the corrections or removals
-- 釋義參照: 
+- 釋義參照:
   - `上` if 釋義 refers to the entry above ("同上", "俗", "古文" etc.)
   - `下` if it shares 釋義 with the entry below ("並上同", "並古文" etc.)
