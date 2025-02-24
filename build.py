@@ -35,6 +35,10 @@ def load_小韻表() -> tuple[
                 原書小韻號 = 小韻號[:-1]
                 細分號_by_原書小韻.setdefault(原書小韻號, []).append(小韻號[-1])
                 細分轄字_by_小韻[小韻號] = 細分轄字
+    for 原書小韻號, 各細分號 in 細分號_by_原書小韻.items():
+        assert 各細分號 == [chr(ord('a') + i) for i in range(len(各細分號))], (
+            f'細分號 for 小韻 #{原書小韻號} out of order: {各細分號}'
+        )
     return 小韻_data, 細分號_by_原書小韻, 細分轄字_by_小韻
 
 
