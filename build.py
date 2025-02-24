@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 import csv
 import dataclasses
 from dataclasses import dataclass
@@ -89,6 +90,76 @@ def load_patches() -> dict[tuple[str, str], Patch]:
     return patches
 
 
+def split_head_with_ids(s: str) -> tuple[str, str]:
+    if not s:
+        raise ValueError('empty string')
+    if s[0] in (
+        '⿰',
+        '⿱',
+        '⿴',
+        '⿵',
+        '⿶',
+        '⿷',
+        '⿸',
+        '⿹',
+        '⿺',
+        '⿻',
+        '⿼',
+        '⿽',
+        '㇯',
+    ):
+        num_parts = 2
+    elif s[0] in ('⿲', '⿳'):
+        num_parts = 3
+    elif s[0] in ('⿾', '⿿', '〾'):
+        num_parts = 1
+    else:
+        return s[0], s[1:]
+    idc = s[0]
+    parts = []
+    rest = s[1:]
+    for i in range(num_parts):
+        # if not rest:
+        #     break
+        part, rest = split_head_with_ids(rest)
+        parts.append(part)
+    return idc + ''.join(parts), rest
+
+
+def iter_chars_with_ids(s: str) -> Iterable[str]:
+    while s:
+        head, s = split_head_with_ids(s)
+        yield head
+
+
+# NOTE Only handles simple annotations for now.
+def remove_annotations(original: str) -> str:
+    original = original.replace('`', '')
+    chars = list(iter_chars_with_ids(original))
+    n = len(chars)
+    removable = [False] * n
+    i = 0
+    while i < len(chars):
+        ch = chars[i]
+        if ch in ('［', '］'):
+            removable[i] = True
+            i += 1
+        elif ch == '｛':
+            j = chars.index('｝', i + 1)
+            removable[i : j + 1] = (True,) * (j + 1 - i)
+            i = j + 1
+        elif ch == '〈':
+            j = chars.index('〉', i + 1)
+            removable[i] = removable[j] = True
+            k = j - i - 1
+            assert not any(removable[i - k : i])
+            removable[i - k : i] = (True,) * k
+            i = j + 1
+        else:
+            i += 1
+    return ''.join(ch for ch, rm in zip(chars, removable) if not rm)
+
+
 @dataclass
 class 廣韻Row:
     小韻號: str
@@ -96,7 +167,6 @@ class 廣韻Row:
     韻目原貌: str
     音韻地位: str
     反切: str
-    字頭原貌: str
     字頭: str
     字頭說明: str
     釋義: str
@@ -124,7 +194,7 @@ def main():
         poem_小韻內字序 = 字序_data[字序_key].poem_小韻內字序
         if not poem_小韻內字序:
             poem_反切 = poem_data[(原書小韻號, '1')]['廣韻反切(覈校後)']
-            含原貌字頭 = ''
+            字頭 = ''
             釋義 = ''
             釋義參照 = ''
         else:
@@ -139,7 +209,7 @@ def main():
                 字頭覈校說明,
                 poem_反切,
                 字頭原貌,
-                含原貌字頭,
+                字頭,
                 釋義,
                 釋義補充,
                 韻目原貌,
@@ -156,7 +226,7 @@ def main():
                 )
             )
             if 字頭覈校說明 == '校':
-                含原貌字頭 = f'[{字頭原貌}/{含原貌字頭}]'
+                字頭 = f'{字頭原貌}〈{字頭}〉'
             if not 釋義:
                 釋義參照 = '下'
             elif 釋義補充:
@@ -167,22 +237,22 @@ def main():
         # 修正
         字頭說明 = ''
         if (patch := patches.get(字序_key)) is not None:
-            assert patch.原字頭 == 含原貌字頭, (
-                f'patching 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but the actual 字 is "{含原貌字頭}"'
+            assert patch.原字頭 == 字頭, (
+                f'patching 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but the actual 字 is "{字頭}"'
             )
             patch_coverage.add(字序_key)
             assert patch.校正字頭, (
                 f'patching 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but 校正字頭 is missing'
             )
-            if patch.校正字頭.startswith('['):
-                assert re.fullmatch(r'\[.+/.+\]', patch.校正字頭), (
-                    f'invalid 校正字頭: "{patch.校正字頭}"'
-                )
+            # TODO Stricter format check
+            assert re.fullmatch(
+                r'｛.+｝|［.+］|.+〈.+〉|[^｛｝［］〈〉]+', patch.校正字頭
+            ), f'invalid 校正字頭: "{patch.校正字頭}"'
             if '～' in patch.校正字頭:
-                assert not 含原貌字頭.startswith('['), (
-                    f'cannot use "～" in 校正字頭 when 字頭 contains correction: "{含原貌字頭}"'
+                assert 字頭 and 字頭[-1] not in tuple('｝］〉'), (
+                    f'cannot use "～" in 校正字頭 when 字頭 contains correction or is empty: "{字頭}"'
                 )
-            含原貌字頭 = patch.校正字頭.replace('～', 含原貌字頭)
+            字頭 = patch.校正字頭.replace('～', 字頭)
 
             # 字頭說明 is an added field, thus it does not have an original value
             字頭說明 = patch.字頭說明
@@ -191,32 +261,29 @@ def main():
                 assert patch.原釋義 == 釋義, (
                     f'patching 釋義 on 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but the actual 釋義 is "{釋義}"'
                 )
-                corrected = re.sub(r'\[.+?/(?:-|(.+?))\]|[{}]', r'\1', patch.校正釋義)
-                釋義 = corrected
+                釋義 = remove_annotations(patch.校正釋義)
             if patch.校正釋義參照 or patch.原釋義參照:
                 assert patch.原釋義參照 == 釋義參照, (
                     f'patching 釋義參照 on 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but the actual 釋義參照 is "{釋義參照}"'
                 )
                 釋義參照 = patch.校正釋義參照
-        elif 字序_data[字序_key].sbgy_字.endswith('/-]'):
-            assert not 含原貌字頭.startswith('[')
-            含原貌字頭 = f'[{含原貌字頭}/-]'
+        elif 字序_data[字序_key].sbgy_字.endswith('｝'):
+            assert 字頭[-1:] not in tuple('｝］〉')
+            字頭 = f'｛{字頭}｝'
 
         字_check = 字序_data[字序_key].字
-        assert 含原貌字頭 == 字_check, (
-            f'字頭 mismatch between 字序表 and (patched) 廣韻 data: "{字_check}" != "{含原貌字頭}" (小韻 {原書小韻號}/{小韻字號})'
+        assert 字頭 == 字_check, (
+            f'字頭 mismatch between 字序表 and (patched) 廣韻 data: "{字_check}" != "{字頭}" (小韻 {原書小韻號}/{小韻字號})'
         )
-        if 含原貌字頭.startswith('['):
-            字頭原貌, 字頭 = 含原貌字頭[1:-1].split('/')
-            字頭 = '' if 字頭 == '-' else 字頭
-            字頭原貌 = '' if 字頭原貌 == '-' else 字頭原貌
+        if 字頭[-1] in ('｝', '］'):
+            字頭或原貌 = 字頭[1:-1]
+        elif 字頭[-1] == '〉':
+            字頭或原貌 = 字頭[字頭.index('〈') + 1 : -1]
         else:
-            字頭 = 含原貌字頭
-            字頭原貌 = ''
+            字頭或原貌 = 字頭
 
         # 小韻號
         # NOTE 字頭 & 細分轄字 in 小韻表.tsv does not contain 字頭原貌 (yet)
-        字頭或原貌 = 字頭 or 字頭原貌
         if 原書小韻號 in 細分號_by_原書小韻:
             for 細分 in 細分號_by_原書小韻[原書小韻號]:
                 小韻號 = 原書小韻號 + 細分
@@ -246,7 +313,7 @@ def main():
 
         # 釋義中反切
         if 小韻字號 == '1' and 反切:
-            反切原貌 = re.sub(r'\[.\]|<.>|⦉.⦊|\(.\)|⦅.⦆', '', 反切)
+            反切原貌 = re.sub(r'［.］|〈.〉|〘.〙|（.）|｟.｠', '', 反切)
             if 反切原貌 != poem_反切:
                 assert 釋義.count(poem_反切 + '切') == 1, (
                     f'釋義 not containing {反切}切 exactly once: {釋義}'
@@ -259,7 +326,6 @@ def main():
             韻目原貌,
             音韻地位,
             反切,
-            字頭原貌,
             字頭,
             字頭說明,
             釋義,
