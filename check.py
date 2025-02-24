@@ -49,9 +49,6 @@ if __name__ == '__main__':
                 f'invalid 小韻字號: {小韻字號}'
             )
             assert len(韻目原貌) == 1, f'invalid 韻目原𩩕: {韻目原貌}'
-            assert re.fullmatch(r'｛.+｝|［.+］|.+〈.+〉|[^｛｝［］〈〉]+', 字頭), (
-                f'invalid 字頭: {字頭}'
-            )
 
             assert PATTERN_描述.fullmatch(音韻地位描述) is not None, (
                 f'invalid 音韻地位: {音韻地位描述}'
@@ -60,8 +57,17 @@ if __name__ == '__main__':
             if 反切:
                 assert PATTERN_反切.fullmatch(反切) is not None, f'invalid 反切: {反切}'
 
-            assert 釋義 or 釋義參照, '釋義 and 釋義參照 should not be both empty'
-            assert not contains_ascii(釋義), (
-                '釋義 should not contain any ASCII characters'
+            assert re.fullmatch(r'｛.+｝|［.+］|.+〈.+〉|[^｛｝［］〈〉]+', 字頭), (
+                f'invalid 字頭: {字頭}'
             )
+
+            assert 釋義 or 釋義參照, '釋義 and 釋義參照 should not be both empty'
             assert 釋義參照 in ('', '上', '下'), '釋義參照 should be "上" or "下"'
+
+            for name, value in (('反切', 反切), ('字頭', 字頭), ('釋義', 釋義)):
+                assert not contains_ascii(value), (
+                    f'{name} should not contain any ASCII characters'
+                )
+            assert not re.search(r'[【】]', 字頭說明), (
+                '字頭說明 should not contain "【】"'
+            )
