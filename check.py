@@ -67,7 +67,12 @@ if __name__ == '__main__':
             assert 釋義 or 釋義參照, '釋義 and 釋義參照 should not be both empty'
             assert 釋義參照 in ('', '上', '下'), '釋義參照 should be "上" or "下"'
 
-            for name, value in (('反切', 反切), ('字頭', 字頭), ('釋義', 釋義)):
+            for name, value in (
+                ('反切', 反切),
+                ('直音', 直音),
+                ('字頭', 字頭),
+                ('釋義', 釋義),
+            ):
                 assert not contains_ascii(value), (
                     f'{name} should not contain any ASCII characters'
                 )
