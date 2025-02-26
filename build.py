@@ -9,8 +9,9 @@ import re
 class 小韻Row:
     小韻號: str
     首字: str
-    反切: str
     音韻地位: str
+    反切: str
+    直音: str
 
 
 def load_小韻表() -> tuple[
@@ -19,18 +20,20 @@ def load_小韻表() -> tuple[
     小韻_data = dict[str, 小韻Row]()
     細分號_by_原書小韻 = dict[str, list[str]]()
     細分轄字_by_小韻 = dict[str, list[str]]()
-    with open('src/小韻表.tsv') as fin:
-        header = next(fin)
-        assert header.rstrip('\n').split('\t') == [
+    with open('src/小韻表.csv') as fin:
+        rows = csv.reader(fin)
+        header = next(rows)
+        assert header == [
             '小韻號',
             '首字',
-            '反切',
             '音韻地位',
+            '反切',
+            '直音',
             '細分轄字',
         ], repr(header)
-        for line in fin:
-            小韻號, 首字, 反切, 音韻地位, 細分轄字 = line.rstrip('\n').split('\t')
-            小韻_data[小韻號] = 小韻Row(小韻號, 首字, 反切, 音韻地位)
+        for row in rows:
+            小韻號, 首字, 音韻地位, 反切, 直音, 細分轄字 = row
+            小韻_data[小韻號] = 小韻Row(小韻號, 首字, 音韻地位, 反切, 直音)
             if 小韻號[-1].isalpha():
                 原書小韻號 = 小韻號[:-1]
                 細分號_by_原書小韻.setdefault(原書小韻號, []).append(小韻號[-1])
@@ -171,6 +174,7 @@ class 廣韻Row:
     韻目原貌: str
     音韻地位: str
     反切: str
+    直音: str
     字頭: str
     字頭說明: str
     釋義: str
@@ -312,8 +316,6 @@ def main():
 
         # 反切
         反切 = 小韻_data[小韻號].反切
-        if 反切 == '-':
-            反切 = ''
 
         # 釋義中反切
         if 小韻字號 == '1' and 反切:
@@ -324,12 +326,15 @@ def main():
                 )
             釋義 = 釋義.replace(poem_反切 + '切', 反切原貌 + '切')
 
+        直音 = 小韻_data[小韻號].直音
+
         廣韻_data[字序_key] = 廣韻Row(
             小韻號,
             小韻字號,
             韻目原貌,
             音韻地位,
             反切,
+            直音,
             字頭,
             字頭說明,
             釋義,

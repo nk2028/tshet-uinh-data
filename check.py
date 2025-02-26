@@ -29,7 +29,7 @@ if __name__ == '__main__':
     with open('韻書/廣韻.csv') as f:
         assert (
             next(f).rstrip('\n')
-            == '小韻號,小韻字號,韻目原貌,音韻地位,反切,字頭,字頭說明,釋義,釋義參照'
+            == '小韻號,小韻字號,韻目原貌,音韻地位,反切,直音,字頭,字頭說明,釋義,釋義參照'
         )
         for line in f:
             (
@@ -38,6 +38,7 @@ if __name__ == '__main__':
                 韻目原貌,
                 音韻地位描述,
                 反切,
+                直音,
                 字頭,
                 字頭說明,
                 釋義,
@@ -53,6 +54,8 @@ if __name__ == '__main__':
             assert PATTERN_描述.fullmatch(音韻地位描述) is not None, (
                 f'invalid 音韻地位: {音韻地位描述}'
             )
+
+            assert 反切 or 直音, 'missing both 反切 and 直音'
 
             if 反切:
                 assert PATTERN_反切.fullmatch(反切) is not None, f'invalid 反切: {反切}'
