@@ -37,7 +37,7 @@ def load_小韻表() -> tuple[
             if 小韻號[-1].isalpha():
                 原書小韻號 = 小韻號[:-1]
                 細分號_by_原書小韻.setdefault(原書小韻號, []).append(小韻號[-1])
-                細分轄字_by_小韻[小韻號] = 細分轄字
+                細分轄字_by_小韻[小韻號] = list(細分轄字)
     for 原書小韻號, 各細分號 in 細分號_by_原書小韻.items():
         assert 各細分號 == [chr(ord('a') + i) for i in range(len(各細分號))], (
             f'細分號 for 小韻 #{原書小韻號} out of order: {各細分號}'
@@ -196,7 +196,7 @@ def main():
             key = (row['小韻序'], row['小韻內字序'])
             poem_data[key] = row
 
-    廣韻_data: dict[tuple[str, str], list[str] | None] = {k: None for k in 字序_data}
+    廣韻_data: dict[tuple[str, str], 廣韻Row | None] = {k: None for k in 字序_data}
     for 字序_key in 廣韻_data:
         原書小韻號, 小韻字號 = 字序_key
         poem_小韻內字序 = 字序_data[字序_key].poem_小韻內字序
