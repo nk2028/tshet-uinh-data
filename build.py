@@ -319,7 +319,7 @@ def main():
 
         # 釋義中反切
         if 小韻字號 == '1' and 反切:
-            反切原貌 = re.sub(r'［.］|〈.〉|〘.〙|（.）|｟.｠', '', 反切)
+            反切原貌 = re.sub(r'［.］|〈.〉|（.）|〘.〙|〖.〗|｟.｠', '', 反切)
             if 反切原貌 != poem_反切:
                 assert 釋義.count(poem_反切 + '切') == 1, (
                     f'釋義 not containing {反切}切 exactly once: {釋義}'

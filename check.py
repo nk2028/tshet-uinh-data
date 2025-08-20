@@ -12,7 +12,7 @@ PATTERN_描述 = re.compile(
 PATTERN_反切 = re.compile(
     r"""(?x)(
         ［.］ |  # 脫字
-        . ( 〈.〉 | 〘.〙 | （.） | ｟.｠ )*  # 原貌及校正
+        . ( 〈.〉 | （.）| 〘.〙 | 〖.〗 | ｟.｠ )*  # 原貌及校正
     ){2}"""
 )
 PATTERN_IDC = re.compile(r'[\u2ff0-\u2fff\u303e\u31ef]')
