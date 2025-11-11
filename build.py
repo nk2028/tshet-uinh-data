@@ -205,6 +205,7 @@ def main():
             字頭 = ''
             釋義 = ''
             釋義參照 = ''
+            韻目原貌 = poem_data[(原書小韻號, '1')]['廣韻韻部原貌(調整前)']
         else:
             poem_row = poem_data[(原書小韻號, poem_小韻內字序)]
             # Formerly used fields (field number is 1-based, same as awk & MS Excel):
