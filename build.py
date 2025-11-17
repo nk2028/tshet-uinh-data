@@ -276,9 +276,6 @@ def main():
                     f'patching 釋義參照 on 小韻 #{原書小韻號}/{小韻字號} 字 "{patch.原字頭}", but the actual 釋義參照 is "{釋義參照}"'
                 )
                 釋義參照 = patch.校正釋義參照
-        elif 字序_data[字序_key].sbgy_字.endswith('｝'):
-            assert 字頭[-1:] not in tuple('｝］〉')
-            字頭 = f'｛{字頭}｝'
 
         字_check = 字序_data[字序_key].字
         assert 字頭 == 字_check, (
